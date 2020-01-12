@@ -1,6 +1,6 @@
-from djanho.apps import AppConfig
+from django.apps import AppConfig
 
-class UserAppConfig(AppConfig):
+class UsersAppConfig(AppConfig):
 
     name = 'cride.users'
-    vervose_name 'Users'
+    verbose_name = 'Users'

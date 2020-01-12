@@ -1,7 +1,7 @@
 
 from django.db import models
 
-class CSharingModel(model.Model):
+class CSharingModel(models.Model):
     """Base model to add some extra data to models"""
 
     created = models.DateTimeField(
