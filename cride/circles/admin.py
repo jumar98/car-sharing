@@ -1,7 +1,6 @@
 
 from django.contrib import admin
 from cride.circles.models import Circle
-from import_export.admin import ImportExportModelAdmin
 
 @admin.register(Circle)
 class CircleAdmin(admin.ModelAdmin):
