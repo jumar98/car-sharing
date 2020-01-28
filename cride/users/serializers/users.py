@@ -4,8 +4,14 @@ from django.contrib.auth import password_validation, authenticate
 from rest_framework.response import Response 
 from rest_framework.authtoken.models import Token
 from cride.users.models import User, Profile
-from rest_framework.validators import UniqueValidator 
+from rest_framework.validators import UniqueValidator
+from django.core.mail import EmailMultiAlternatives
 from django.core.validators import RegexValidator
+from django.template.loader import render_to_string
+from django.utils import timezone
+from datetime import timedelta
+from django.conf import settings
+import jwt
 
 class UserModelSerializer(serializers.ModelSerializer):
 
@@ -30,11 +36,12 @@ class UserLoginSerializer(serializers.Serializer):
         user = authenticate(username=data['email'], password=data['password'])
         if not user:
             raise serializers.ValidationError('Invalid credention.')
+        if not user.is_verified:
+            raise serializers.ValidationError("Account isn't active yet.") 
         self.context['user'] = user
         return data
 
     def create(self, data):
-
         token, created = Token.objects.get_or_create(user=self.context['user'])
         return self.context['user'], token.key
 
@@ -70,7 +77,29 @@ class UserSignUpSerializer(serializers.Serializer):
 
     def create(self, data):
         data.pop('password_confirmation')
-        user = User.objects.create_user(**data)
+        user = User.objects.create_user(**data, is_verified=False)
         profile = Profile.objects.create(user=user)
+        self.send_confirmation_email(user)
         return user
 
+    def send_confirmation_email(self, user):
+        verification_token = self.get_verification_token(user)
+        subject = "Welcom @{}! verify your account plesae.".format(user.username)
+        from_email = 'noreply@example.com',
+        content = render_to_string(
+            'emails/users/account_verification.html',
+            {'token': verification_token, 'user':user}
+        )
+        msg = EmailMultiAlternatives(subject, content, from_email, [user.email])
+        msg.attach_alternative(content, "text/html")
+        msg.send()
+
+    def get_verification_token(self, user):
+        exp_date = timezone.now() + timedelta(days=3)
+        payload = {
+            'username': user.username,
+            'exp': int(exp_date.timestamp()),
+            'type': 'email_confirmation'
+        }
+        token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
+        return token.decode()
