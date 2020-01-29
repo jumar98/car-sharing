@@ -29,6 +29,11 @@ class Circle(CSharingModel):
         default=0,
         help_text='If circle is limited, this will be the limit of members in the circle.'
     )
+    members = models.ManyToManyField(
+        'users.User',
+        through='circles.Membership',
+        through_fields=('circle','user')
+    )
 
     def __str__(self):
         return self.name
