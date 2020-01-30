@@ -1,6 +1,6 @@
 from rest_framework.routers import DefaultRouter
 from django.urls import path, include
-from circles.views import circles as circles_views
+from .views import circles as circles_views
 
 router = DefaultRouter()
 router.register(r'circles', circles_views.CircleViewSet, basename='circle')

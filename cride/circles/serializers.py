@@ -9,5 +9,5 @@ class CircleModelSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'name', 'slug_name', 'about',
             'picture', 'rides_offered', 'rides_taken',
-            'verified', 'is_public', 'members limit'
+            'is_verified', 'is_public', 'members_limit'
         )
