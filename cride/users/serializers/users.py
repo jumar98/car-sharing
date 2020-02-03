@@ -12,8 +12,11 @@ from django.utils import timezone
 from datetime import timedelta
 from django.conf import settings
 import jwt
+from cride.users.serializers.profile import ProfileModelSerializer
 
 class UserModelSerializer(serializers.ModelSerializer):
+
+    profile = ProfileModelSerializer(read_only=True)
 
     class Meta:
 
@@ -23,8 +26,8 @@ class UserModelSerializer(serializers.ModelSerializer):
             'first_name',
             'last_name',
             'email',
-            'phone_number'
-
+            'phone_number',
+            'profile'
         )
 
 class UserLoginSerializer(serializers.Serializer):
