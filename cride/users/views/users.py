@@ -14,7 +14,7 @@ from rest_framework.permissions import (
     AllowAny,
     IsAuthenticated
 )
-from cride.circles.serializers import CircleModelSerializer
+from cride.circles.serializers.circles import CircleModelSerializer
 from cride.users.permissions import IsAccountOwner
 from cride.circles.models.circles import Circle
 from cride.users.serializers.profile import ProfileModelSerializer

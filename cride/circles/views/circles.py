@@ -1,6 +1,6 @@
 from rest_framework import mixins, viewsets
 from cride.circles.models import Circle, Membership
-from cride.circles.serializers import CircleModelSerializer
+from cride.circles.serializers.circles import CircleModelSerializer
 from rest_framework.permissions import IsAuthenticated
 from cride.circles.permissions.circles import IsCircleAdmin
 class CircleViewSet(mixins.CreateModelMixin,
