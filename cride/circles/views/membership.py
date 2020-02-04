@@ -4,6 +4,9 @@ from cride.circles.models import Circle, Membership
 from cride.circles.serializers.memberships import MembershipModelSerializer
 from rest_framework.permissions import IsAuthenticated
 from cride.circles.permissions.memberships import IsActiveCircleMember
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from cride.circles.models.invitations import Invitation
 
 class MembershipViewSet(mixins.ListModelMixin,
                         mixins.RetrieveModelMixin,
@@ -39,3 +42,31 @@ class MembershipViewSet(mixins.ListModelMixin,
     def perform_destroy(self, instance):
         instance.is_active = False
         instance.save()
+
+    @action(detail=True, methods=['get'])
+    def invitations(self, request, *args, **kwargs):
+        member = self.get_object()
+        invited_members = Membership.objects.filter(
+            circle=self.circle,
+            invited_by=request.user,
+            is_active=True
+        )
+        unused_invitations = Invitation.objects.filter(
+            circle=self.circle,
+            issued_by=request.user,
+            used=False
+        ).values_list('code')
+        diff = member.remaining_invitation - len(unused_invitations)
+        invitations = [x[0] for x in unused_invitations]
+        for i in range(0, diff):
+            invitations.append(
+                Invitation.objects.create(
+                    issued_by=request.user,
+                    circle=self.circle
+                ).code
+            )
+        data = {
+            'used_invitations': MembershipModelSerializer(invited_members, many=True).data,
+            'invitations': invitations
+        }
+        return Response(data)

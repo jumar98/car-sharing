@@ -3,6 +3,7 @@ from cride.circles.models import Circle, Membership
 from cride.circles.serializers.circles import CircleModelSerializer
 from rest_framework.permissions import IsAuthenticated
 from cride.circles.permissions.circles import IsCircleAdmin
+
 class CircleViewSet(mixins.CreateModelMixin,
                     mixins.RetrieveModelMixin,
                     mixins.UpdateModelMixin,
@@ -24,6 +25,7 @@ class CircleViewSet(mixins.CreateModelMixin,
         if self.action in ['update', 'partial_update']:
             permissions.append(IsCircleAdmin)
         return [permission() for permission in permissions]
+    
     def perform_create(self, serializer):
         circle = serializer.save()
         user = self.request.user
